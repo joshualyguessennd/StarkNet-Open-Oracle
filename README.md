@@ -9,7 +9,7 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-Testing 
+Testing (local contract deployment with protostar cool features)
 
 ```
 protostar test tests/
