@@ -25,6 +25,12 @@ struct Entry:
     member publisher : felt
 end
 
+@contract_interface
+namespace IOracleController:
+    func publish_entry(entry : Entry):
+    end
+end
+
 @storage_var
 func trusted_signers_addresses(index : felt) -> (eth_address : felt):
 end
@@ -34,7 +40,7 @@ func trusted_signers_names_by_address(eth_address : felt) -> (trusted_signer_nam
 end
 
 @storage_var
-func ticker_name_to_empiric_key(ticker_name : felt) -> (key : felt):
+func ticker_name_little_to_empiric_key(ticker_name : felt) -> (key : felt):
 end
 
 @constructor
@@ -51,9 +57,9 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
         eth_address=1443903124408663179676923566941061880487545664188, value='Coinbase'
     )
 
-    ticker_name_to_empiric_key.write(ticker_name='BTC', value='btc/usd')
-    ticker_name_to_empiric_key.write(ticker_name='ETH', value='eth/usd')
-    ticker_name_to_empiric_key.write(ticker_name='DAI', value='dai/usd')
+    ticker_name_little_to_empiric_key.write(ticker_name=4412482, value='btc/usd')  # BTC
+    ticker_name_little_to_empiric_key.write(ticker_name=4740165, value='eth/usd')  # ETH
+    ticker_name_little_to_empiric_key.write(ticker_name=4800836, value='dai/usd')  # DAI
 
     return ()
 end
@@ -82,8 +88,8 @@ func publish_entry{
         end
     end
 
-    let (ticker_name_big) = word_reverse_endian_64(entry.ticker_name_little)
-    let (key) = ticker_name_to_empiric_key.read(ticker_name_big)
+    let ticker_name_little = entry.ticker_name_little
+    let (key) = ticker_name_little_to_empiric_key.read(ticker_name_little)
 
     with_attr error_message("This ticker name is not supported by Empiric Network"):
         if key == 0:
@@ -118,6 +124,8 @@ func publish_entry{
     assert oracle_controller_entry.publisher = publisher_name
 
     # Todo : call publish_entry of OracleController here
+
+    IOracleController.publish_entry(contract_address=123, entry=oracle_controller_entry)
 
     return ()
 end
