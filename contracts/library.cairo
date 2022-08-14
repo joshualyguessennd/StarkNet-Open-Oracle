@@ -5,8 +5,6 @@ from starkware.cairo.common.cairo_builtins import BitwiseBuiltin
 from starkware.cairo.common.cairo_keccak.keccak import (
     keccak,
     finalize_keccak,
-    keccak_felts_bigend,
-    keccak_uint256s,
     keccak_add_uint256s,
 )
 from starkware.cairo.common.uint256 import (
