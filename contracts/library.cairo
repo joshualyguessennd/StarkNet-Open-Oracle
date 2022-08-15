@@ -2,11 +2,7 @@
 
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin
-from starkware.cairo.common.cairo_keccak.keccak import (
-    keccak,
-    finalize_keccak,
-    keccak_add_uint256s,
-)
+from starkware.cairo.common.cairo_keccak.keccak import keccak, finalize_keccak, keccak_add_uint256s
 from starkware.cairo.common.uint256 import (
     Uint256,
     uint256_reverse_endian,
@@ -16,7 +12,27 @@ from starkware.cairo.common.uint256 import (
 )
 from starkware.cairo.common.cairo_secp.signature import verify_eth_signature_uint256
 
-@external
+struct OpenOracleEntry:
+    member t_little : felt
+    member p_little : felt
+    member ticker_len_little : felt
+    member ticker_name_little : felt
+    member r_low : felt
+    member r_high : felt
+    member s_low : felt
+    member s_high : felt
+    member v : felt
+    member eth_address : felt
+end
+
+struct Entry:
+    member key : felt  # UTF-8 encoded lowercased string, e.g. "eth/usd"
+    member value : felt
+    member timestamp : felt
+    member source : felt
+    member publisher : felt
+end
+
 func word_reverse_endian_64{bitwise_ptr : BitwiseBuiltin*}(word : felt) -> (res : felt):
     # A function to reverse the endianness of a 8 bytes (64 bits) integer.
     # The result will not make sense if word > 2^64.
@@ -42,7 +58,6 @@ func word_reverse_endian_64{bitwise_ptr : BitwiseBuiltin*}(word : felt) -> (res 
     return (res=word / 2 ** (8 + 16 + 32))
 end
 
-@external
 func verify_oracle_message{range_check_ptr, bitwise_ptr : BitwiseBuiltin*}(
     t_little : felt,
     p_little : felt,
