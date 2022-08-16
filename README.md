@@ -55,7 +55,7 @@ protostar build
 protostar deploy build/OpenOraclePublisher.json --network alpha-goerli
 ```
 
-The current version of the contract is deployed here : https://goerli.voyager.online/contract/0x01e02f5a90dd2071287160b5b3ee60e6c5b12f4be91c4e4caf424172efc53f1b and the contract address is stored in `client/client.py`
+The current version of the contract is deployed here : https://goerli.voyager.online/contract/0x0623022bd8d44cfa85b5cf47b796ad6857771c98ca17468f5d8f66dacde366aa and the contract address is stored in `client/client.py`
 
 
 
