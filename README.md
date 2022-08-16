@@ -9,7 +9,7 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-Testing contracts (local contract deployment with protostar cool features takes some time)
+Testing contracts (local contract deployment with protostar cool features takes some time so be patient)
 
 ```
 protostar test tests/
@@ -19,7 +19,7 @@ Use `protostar test --disable-hint-validation tests/` if using hints in the main
 
 ## Using the client to publish signed prices  
 
-First you need to compile the contract to get its abi.  
+First you need to compile the contract to get its abi. It will be stored in `build/OpenOraclePublisher_abi.json`
 ```bash
 protostar build
 ```
