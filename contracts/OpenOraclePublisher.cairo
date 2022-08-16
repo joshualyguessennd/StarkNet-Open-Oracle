@@ -90,10 +90,10 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     trusted_signers_addresses_len.write(2)
 
     trusted_signers_names_by_address.write(
-        eth_address=761466874539515783303110363281120649054760260892, value='Okex'
+        eth_address=761466874539515783303110363281120649054760260892, value='okex'
     )
     trusted_signers_names_by_address.write(
-        eth_address=1443903124408663179676923566941061880487545664188, value='Coinbase'
+        eth_address=1443903124408663179676923566941061880487545664188, value='coinbase'
     )
 
     ticker_name_little_to_empiric_key.write(ticker_name=4412482, value='btc/usd')  # BTC
@@ -197,8 +197,8 @@ func publish_entry{
     assert oracle_controller_entry.key = key
     assert oracle_controller_entry.value = price
     assert oracle_controller_entry.timestamp = timestamp
-    assert oracle_controller_entry.source = 'OpenOracle'
-    assert oracle_controller_entry.publisher = publisher_name
+    assert oracle_controller_entry.source = publisher_name
+    assert oracle_controller_entry.publisher = 'OpenOracle'
 
     let (controller_address) = empiric_oracle_controller_address.read()
 
