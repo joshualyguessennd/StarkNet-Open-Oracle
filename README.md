@@ -25,14 +25,16 @@ First you need to compile the contract to get its abi. It will be stored in `bui
 protostar build
 ```
 
-Then fill the necessary environment variables in `client/.env(fill_and_rename_to.env` and rename the file to `.env`.  
-You will need your account private key as an integer, your account contract address, and optionally Coinbase API keys with “view” permission if you want to fetch signed prices from Coinbase.  
-Okex doesn't require any API keys to fetch its signed prices.  
+Then fill the necessary environment variables in `client/.env(fill_and_rename_to.env` and rename the file to `.env`. You will need:  
+- your account private key as an integer  
+- your account contract address  
+- optionally, Coinbase API keys with “view” permission if you want to fetch signed prices from Coinbase.    
+Note that Okex doesn't require any API keys to fetch its signed prices.  
 
 After that edit the function `main()` in `client/client.py` so you can choose your assets (only BTC, ETH and DAI are supported for now), and if you want to fetch prices either from:     
--okex (use `c.publish_open_oracle_entries_okex`)  
--coinbase (use `c.publish_open_oracle_entries_coinbase`)  
--both (use `publish_open_oracle_entries_all_publishers`).  
+- okex (use `c.publish_open_oracle_entries_okex`)  
+- coinbase (use `c.publish_open_oracle_entries_coinbase`)  
+- both (use `c.publish_open_oracle_entries_all_publishers`).  
 
 ```python
 async def main():
