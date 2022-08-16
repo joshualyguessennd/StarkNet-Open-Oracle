@@ -43,3 +43,17 @@ async def main():
 Finally, don't forget to activate the virtual env and just run `python client/client.py`. 
 
 All updates will happen in one transaction. 
+
+## Contract deployment and current address
+
+To deploy the contract, just use protostar like this :
+
+```bash
+protostar build
+protostar deploy build/OpenOraclePublisher.json --network alpha-goerli
+```
+
+The current version of the contract is deployed here : https://goerli.voyager.online/contract/0x01e02f5a90dd2071287160b5b3ee60e6c5b12f4be91c4e4caf424172efc53f1b and the contract address is stored in `client/client.py`
+
+
+
