@@ -15,3 +15,6 @@ artifacts
 
 # Protostar
 build
+
+#.env client file
+/client/.env
