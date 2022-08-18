@@ -4,6 +4,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.pow import pow
 from starkware.starknet.common.syscalls import get_caller_address
+from starkware.cairo.common.math import assert_not_equal
 
 from contracts.library import verify_oracle_message, word_reverse_endian_64, OpenOracleEntry, Entry
 
@@ -16,6 +17,21 @@ namespace IOracleController:
     func get_admin_address() -> (admin_address : felt):
     end
 end
+
+# ------------------
+# EVENTS
+# ------------------
+
+@event
+func empiric_oracle_controller_address_changed(new_contract_address : felt):
+end
+@event
+func empiric_admin_address_changed(old_admin_address : felt, new_admin_address : felt):
+end
+
+# ------------------
+# STORAGE VARS
+# ------------------
 
 @storage_var
 func empiric_oracle_controller_address() -> (address : felt):
@@ -38,6 +54,10 @@ end
 @storage_var
 func decimals_cache(oracle_address, key) -> (decimals : felt):
 end
+
+# ------------------
+# VIEW FUNCTIONS
+# ------------------
 
 @view
 func get_all_trusted_signers_addresses{
@@ -73,12 +93,15 @@ func get_empiric_oracle_controller_address{
     return (oracle_controller_address)
 end
 @view
-func get_admin_address{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
-    admin_address : felt
-):
+func get_empiric_admin_address{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    ) -> (admin_address : felt):
     let (admin_address) = empiric_admin_address.read()
     return (admin_address)
 end
+
+# ------------------
+# CONSTRUCTOR
+# ------------------
 
 @constructor
 func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
@@ -104,11 +127,6 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
         value=0x012fadd18ec1a23a160cc46981400160fbf4a7a5eed156c4669e39807265bcd4
     )
 
-    # let (admin_address) = IOracleController.get_admin_address(
-    #     contract_address=0x012fadd18ec1a23a160cc46981400160fbf4a7a5eed156c4669e39807265bcd4
-    # )
-    # empiric_admin_address.write(value=admin_address)
-
     empiric_admin_address.write(
         value=0x0704cc0f2749637a0345d108ac9cd597bb33ccf7f477978d52e236830812cd98
     )
@@ -124,6 +142,10 @@ func only_admin{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_pt
     return ()
 end
 
+# ------------------
+# EXTERNAL FUNCTIONS
+# ------------------
+
 # Only empiric admin can call this function to update Oracle Controller address if it has changed.
 @external
 func update_empiric_oracle_controller_address{
@@ -131,17 +153,27 @@ func update_empiric_oracle_controller_address{
 }(new_contract_address : felt):
     only_admin()
     empiric_oracle_controller_address.write(new_contract_address)
+    empiric_oracle_controller_address_changed.emit(new_contract_address)
     return ()
 end
 
 # Anyone can call this function to make sure the admin of the Oracle Controller and the admin of this contract are synced.
+
 @external
-func update_admin_address{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+func update_empiric_admin_address{
+    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
+}():
     let (oracle_controller_address) = empiric_oracle_controller_address.read()
-    let (admin_address) = IOracleController.get_admin_address(
+    let (new_admin_address) = IOracleController.get_admin_address(
         contract_address=oracle_controller_address
     )
-    empiric_admin_address.write(admin_address)
+    let (current_admin_address) = empiric_admin_address.read()
+    with_attr error_message(
+            "Empiric admin address is already synced with the Oracle Controller contract"):
+        assert_not_equal(current_admin_address, new_admin_address)
+    end
+    empiric_admin_address.write(new_admin_address)
+    empiric_admin_address_changed.emit(current_admin_address, new_admin_address)
     return ()
 end
 
@@ -155,19 +187,14 @@ func publish_entry{
 
     with_attr error_message(
             "The Ethereum address that supposedly signed this message does not come from OpenOracle trusted signers"):
-        if publisher_name == 0:
-            # If the address is not known in the contract storage, just fail with an impossible assert statement.
-            assert 0 = 1
-        end
+        assert_not_equal(publisher_name, 0)
     end
 
     let ticker_name_little = entry.ticker_name_little
     let (key) = ticker_name_little_to_empiric_key.read(ticker_name_little)
 
     with_attr error_message("This ticker name is not supported by Empiric Network"):
-        if key == 0:
-            assert 0 = 1
-        end
+        assert_not_equal(key, 0)
     end
 
     with_attr error_message("Signature verification for the OpenOracleEntry provided failed"):
@@ -198,7 +225,7 @@ func publish_entry{
     assert oracle_controller_entry.value = price
     assert oracle_controller_entry.timestamp = timestamp
     assert oracle_controller_entry.source = publisher_name
-    assert oracle_controller_entry.publisher = 'OpenOracle'
+    assert oracle_controller_entry.publisher = 'openoracle'
 
     let (controller_address) = empiric_oracle_controller_address.read()
 
