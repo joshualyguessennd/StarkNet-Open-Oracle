@@ -49,7 +49,7 @@ end
 func trusted_signers_names_by_address(eth_address : felt) -> (trusted_signer_name : felt):
 end
 @storage_var
-func ticker_name_little_to_empiric_key(ticker_name : felt) -> (key : felt):
+func ticker_name_little_to_empiric_key(ticker_name_little : felt) -> (key : felt):
 end
 @storage_var
 func decimals_cache(oracle_address, key) -> (decimals : felt):
@@ -119,9 +119,19 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
         eth_address=1443903124408663179676923566941061880487545664188, value='coinbase'
     )
 
-    ticker_name_little_to_empiric_key.write(ticker_name=4412482, value='btc/usd')  # BTC
-    ticker_name_little_to_empiric_key.write(ticker_name=4740165, value='eth/usd')  # ETH
-    ticker_name_little_to_empiric_key.write(ticker_name=4800836, value='dai/usd')  # DAI
+    ticker_name_little_to_empiric_key.write(ticker_name_little=4412482, value='btc/usd')  # BTC
+    ticker_name_little_to_empiric_key.write(ticker_name_little=4740165, value='eth/usd')  # ETH
+    ticker_name_little_to_empiric_key.write(ticker_name_little=5919832, value='xtz/usd')  # XTZ
+    ticker_name_little_to_empiric_key.write(ticker_name_little=4800836, value='dai/usd')  # DAI
+    ticker_name_little_to_empiric_key.write(ticker_name_little=5260626, value='rep/usd')  # REP
+    ticker_name_little_to_empiric_key.write(ticker_name_little=5788250, value='zrx/usd')  # ZRX
+    ticker_name_little_to_empiric_key.write(ticker_name_little=5521730, value='bat/usd')  # BAT
+    ticker_name_little_to_empiric_key.write(ticker_name_little=4410955, value='knc/usd')  # KNC
+    ticker_name_little_to_empiric_key.write(ticker_name_little=1263421772, value='link/usd')  # LINK
+    ticker_name_little_to_empiric_key.write(ticker_name_little=1347243843, value='comp/usd')  # COMP
+    ticker_name_little_to_empiric_key.write(ticker_name_little=4804181, value='uni/usd')  # UNI
+    ticker_name_little_to_empiric_key.write(ticker_name_little=5526087, value='grt/usd')  # GRT
+    ticker_name_little_to_empiric_key.write(ticker_name_little=5787219, value='snx/usd')  # SNX
 
     empiric_oracle_controller_address.write(
         value=0x012fadd18ec1a23a160cc46981400160fbf4a7a5eed156c4669e39807265bcd4
@@ -133,6 +143,9 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     return ()
 end
 
+# ------------------
+# EXTERNAL FUNCTIONS
+# ------------------
 func only_admin{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     let (caller_address) = get_caller_address()
     let (admin_address) = empiric_admin_address.read()
@@ -141,10 +154,6 @@ func only_admin{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_pt
     end
     return ()
 end
-
-# ------------------
-# EXTERNAL FUNCTIONS
-# ------------------
 
 # Only empiric admin can call this function to update Oracle Controller address if it has changed.
 @external
