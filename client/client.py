@@ -16,7 +16,7 @@ from client_tools import fetch_coinbase, fetch_okex, prepare_contract_call_args
 
 load_dotenv()
 
-OPEN_ORACLE_ADDRESS = '0x0623022bd8d44cfa85b5cf47b796ad6857771c98ca17468f5d8f66dacde366aa'
+OPEN_ORACLE_ADDRESS = '0x07c55ef7726ce0fc4cf05cfb4ea4b880b1a216a396af051287e4efbd900f7b93'
 NETWORK = TESTNET
 
 
