@@ -15,7 +15,9 @@ namespace OpenOraclePublisher:
     end
     func update_empiric_oracle_controller_address(new_contract_address : felt):
     end
-    func get_admin_address() -> (admin_address : felt):
+    func update_empiric_admin_address():
+    end
+    func get_empiric_admin_address() -> (admin_address : felt):
     end
     func get_empiric_oracle_controller_address() -> (address : felt):
     end
@@ -121,8 +123,11 @@ func test_update_empiric_oracle_controller_address_works_if_admin{
     alloc_locals
     tempvar contract_address
     %{ ids.contract_address = context.contract_a_address %}
-    let (local admin_address) = OpenOraclePublisher.get_admin_address(contract_address)
-    %{ stop_prank = start_prank(ids.admin_address, target_contract_address=ids.contract_address) %}
+    let (local admin_address) = OpenOraclePublisher.get_empiric_admin_address(contract_address)
+    %{
+        stop_prank = start_prank(ids.admin_address, target_contract_address=ids.contract_address) 
+        expect_events({"name": "empiric_oracle_controller_address_changed", "data":[123456], "from_address": ids.contract_address})
+    %}
 
     OpenOraclePublisher.update_empiric_oracle_controller_address(contract_address, 123456)
     let (
@@ -130,6 +135,52 @@ func test_update_empiric_oracle_controller_address_works_if_admin{
     ) = OpenOraclePublisher.get_empiric_oracle_controller_address(contract_address)
 
     assert new_oracle_controller_address = 123456
+    return ()
+end
+
+@external
+func test_update_admin_address_if_not_synced{
+    syscall_ptr : felt*, range_check_ptr, pedersen_ptr : HashBuiltin*, bitwise_ptr : BitwiseBuiltin*
+}():
+    alloc_locals
+    tempvar contract_address
+    %{ ids.contract_address = context.contract_a_address %}
+    let (oracle_controller_address) = OpenOraclePublisher.get_empiric_oracle_controller_address(
+        contract_address
+    )
+    let (old_admin_address) = OpenOraclePublisher.get_empiric_admin_address(contract_address)
+    %{
+        stop_mock = mock_call(ids.oracle_controller_address, 'get_admin_address', [123456])
+        expect_events({"name": "empiric_admin_address_changed", "data":[ids.old_admin_address,123456], "from_address": ids.contract_address})
+    %}
+
+    OpenOraclePublisher.update_empiric_admin_address(contract_address)
+
+    let (new_admin_address) = OpenOraclePublisher.get_empiric_admin_address(contract_address)
+    assert new_admin_address = 123456
+
+    return ()
+end
+
+@external
+func test_update_admin_address_fail_if_synced{
+    syscall_ptr : felt*, range_check_ptr, pedersen_ptr : HashBuiltin*, bitwise_ptr : BitwiseBuiltin*
+}():
+    alloc_locals
+    tempvar contract_address
+    %{ ids.contract_address = context.contract_a_address %}
+
+    let (old_admin_address) = OpenOraclePublisher.get_empiric_admin_address(contract_address)
+    let (oracle_controller_address) = OpenOraclePublisher.get_empiric_oracle_controller_address(
+        contract_address
+    )
+    %{
+        stop_mock = mock_call(ids.oracle_controller_address, 'get_admin_address', [ids.old_admin_address])
+        expect_revert(error_message="Empiric admin address is already synced with the Oracle Controller contract")
+    %}
+
+    OpenOraclePublisher.update_empiric_admin_address(contract_address)
+
     return ()
 end
 
