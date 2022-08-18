@@ -5,6 +5,11 @@ import hmac
 import requests
 from hashlib import sha256
 from typing import Tuple, List
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 def to_uint(a):
@@ -26,12 +31,19 @@ def fetch_okex(assets: List[str] = ['btc', 'eth', 'dai']) -> List[Tuple[str, str
     r_dict = r.json()['data'][0]
     messages = r_dict['messages']
     signatures = r_dict['signatures']
-    prices = r_dict['prices']
+    tickers = [bytes.fromhex(remove_0x_if_present(m))[224:232].split(b'\x00')[
+        0].decode() for m in messages]
 
     result = []
     for asset in assets:
-        index = list(prices.keys()).index(asset.upper())
-        result.append((messages[index], signatures[index], okx_wallet_address))
+        try:
+            index = tickers.index(asset.upper())
+            result.append(
+                (messages[index], signatures[index], okx_wallet_address))
+        except ValueError:
+            logger.info(
+                f"Asset {asset.upper()} not available in Okex signed messages, skipping")
+            pass
 
     return result
 
@@ -44,13 +56,6 @@ def fetch_coinbase(assets: List[str] = ['btc', 'eth', 'dai']) -> List[Tuple[str,
     URL = "https://api.exchange.coinbase.com"
     REQUEST_PATH = "/oracle"
     METHOD = "GET"
-    headers = {
-        "Accept": "application/json",
-        "CB-ACCESS-KEY": COINBASE_API_KEY,
-        "CB-ACCESS-SIGN": base64.b64encode(signature.digest()),
-        "CB-ACCESS-TIMESTAMP": request_timestamp,
-        "CB-ACCESS-PASSPHRASE": COINBASE_API_PASSPHRASE,
-    }
     request_timestamp = str(
         int(
             datetime.datetime.now(datetime.timezone.utc)
@@ -63,21 +68,35 @@ def fetch_coinbase(assets: List[str] = ['btc', 'eth', 'dai']) -> List[Tuple[str,
         (request_timestamp + METHOD + REQUEST_PATH).encode("ascii"),
         sha256,
     )
+    headers = {
+        "Accept": "application/json",
+        "CB-ACCESS-KEY": COINBASE_API_KEY,
+        "CB-ACCESS-SIGN": base64.b64encode(signature.digest()),
+        "CB-ACCESS-TIMESTAMP": request_timestamp,
+        "CB-ACCESS-PASSPHRASE": COINBASE_API_PASSPHRASE,
+    }
+
     response = requests.request(
         METHOD, URL + REQUEST_PATH, headers=headers, timeout=10
     )
 
     response.raise_for_status()
-    result = response.json()
-    messages = result['messages']
-    signatures = result['signatures']
-    prices = result['prices']
+    response = response.json()
+    messages = response['messages']
+    signatures = response['signatures']
 
     result = []
+    tickers = [bytes.fromhex(remove_0x_if_present(m))[224:232].split(b'\x00')[
+        0].decode() for m in messages]
     for asset in assets:
-        index = list(prices.keys()).index(asset.upper())
-        result.append(
-            (messages[index], signatures[index], coinbase_wallet_address))
+        try:
+            index = tickers.index(asset.upper())
+            result.append(
+                (messages[index], signatures[index], coinbase_wallet_address))
+        except ValueError:
+            logger.info(
+                f"Asset {asset.upper()} not available in Coinbase signed messages, skipping")
+            pass
 
     return result
 

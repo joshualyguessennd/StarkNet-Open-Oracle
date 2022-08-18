@@ -11,10 +11,10 @@ from starknet_py.net import AccountClient
 from starknet_py.contract import Contract
 from starknet_py.net.networks import TESTNET
 from dotenv import load_dotenv
-from client_tools import fetch_coinbase, fetch_okex, prepare_contract_call_args
+from client.client_tools import fetch_coinbase, fetch_okex, prepare_contract_call_args
 
 
-load_dotenv()
+load_dotenv('client/.env')
 
 OPEN_ORACLE_ADDRESS = '0x07c55ef7726ce0fc4cf05cfb4ea4b880b1a216a396af051287e4efbd900f7b93'
 NETWORK = TESTNET
@@ -98,7 +98,8 @@ class OpenOracleClient(object):
 
 async def main():
     c = OpenOracleClient()
-    await c.publish_open_oracle_entries_okex(assets=['btc'])
+
+    await c.publish_open_oracle_entries_okex(assets=['btc', 'eth'])
 
 
 if __name__ == "__main__":
