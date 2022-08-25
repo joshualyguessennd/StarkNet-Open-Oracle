@@ -27,5 +27,5 @@ jobs:
       - name: Install dependencies
         run: |
           pip install black
-      - name: Check files formatting
-        run: black --check client
+      - name: Format python files
+        run: black client
