@@ -1,6 +1,5 @@
 import json
 import os
-import asyncio
 from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.net.networks import MAINNET, TESTNET
@@ -11,7 +10,7 @@ from starknet_py.net import AccountClient
 from starknet_py.contract import Contract
 from starknet_py.net.networks import TESTNET
 from dotenv import load_dotenv
-from client.client_tools import fetch_coinbase, fetch_okex, prepare_contract_call_args
+from client_tools import fetch_coinbase, fetch_okx, prepare_contract_call_args
 
 
 load_dotenv('client/.env')
@@ -72,8 +71,8 @@ class OpenOracleClient(object):
     async def send_transactions(self, calls) -> hex:
         return hex((await self.account_client.execute(calls, auto_estimate=True)).hash)
 
-    async def publish_open_oracle_entries_okex(self, assets=['btc', 'eth', 'dai']) -> hex:
-        okx_oracle_data = fetch_okex(assets=assets)
+    async def publish_open_oracle_entries_okx(self, assets=['btc', 'eth', 'dai']) -> hex:
+        okx_oracle_data = fetch_okx(assets=assets)
         calls = [self.open_oracle_contract.functions["publish_entry"].prepare(
             prepare_contract_call_args(*oracle_data)) for oracle_data in okx_oracle_data]
 
@@ -87,21 +86,10 @@ class OpenOracleClient(object):
         return await self.send_transactions(calls=calls)
 
     async def publish_open_oracle_entries_all_publishers(self, assets=['btc', 'eth', 'dai']) -> hex:
-        okx_oracle_data = fetch_okex(assets=assets)
+        okx_oracle_data = fetch_okx(assets=assets)
         coinbase_oracle_data = fetch_coinbase(assets=assets)
         all_data = okx_oracle_data + coinbase_oracle_data
 
         calls = [self.open_oracle_contract.functions["publish_entry"].prepare(
             prepare_contract_call_args(*oracle_data)) for oracle_data in all_data]
         return await self.send_transactions(calls=calls)
-
-
-async def main():
-    c = OpenOracleClient()
-
-    await c.publish_open_oracle_entries_okex(assets=['btc', 'eth'])
-
-
-if __name__ == "__main__":
-
-    asyncio.run(main())

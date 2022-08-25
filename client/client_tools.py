@@ -24,7 +24,7 @@ def remove_0x_if_present(eth_hex_data: str) -> str:
         return eth_hex_data
 
 
-def fetch_okex(assets: List[str] = ['btc', 'eth', 'dai']) -> List[Tuple[str, str, str]]:
+def fetch_okx(assets: List[str] = ['btc', 'eth', 'dai']) -> List[Tuple[str, str, str]]:
     okx_wallet_address = '85615b076615317c80f14cbad6501eec031cd51c'  # from api docs
 
     r = requests.get('https://www.okx.com/api/v5/market/open-oracle')
@@ -42,7 +42,7 @@ def fetch_okex(assets: List[str] = ['btc', 'eth', 'dai']) -> List[Tuple[str, str
                 (messages[index], signatures[index], okx_wallet_address))
         except ValueError:
             logger.info(
-                f"Asset {asset.upper()} not available in Okex signed messages, skipping")
+                f"Asset {asset.upper()} not available in Okx signed messages, skipping")
             pass
 
     return result

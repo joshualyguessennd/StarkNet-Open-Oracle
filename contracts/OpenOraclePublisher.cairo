@@ -113,7 +113,7 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     trusted_signers_addresses_len.write(2)
 
     trusted_signers_names_by_address.write(
-        eth_address=761466874539515783303110363281120649054760260892, value='okex'
+        eth_address=761466874539515783303110363281120649054760260892, value='okx'
     )
     trusted_signers_names_by_address.write(
         eth_address=1443903124408663179676923566941061880487545664188, value='coinbase'
