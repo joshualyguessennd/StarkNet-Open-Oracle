@@ -15,7 +15,7 @@ jobs:
         run: | 
           pip install cairo-lang==0.9.1
       - name: Check files formatting
-        run: cairo-format -c contracts/**/*.cairo
+        run: cairo-format -c contracts/*.cairo
   python:
     runs-on: ubuntu-latest
     steps:
