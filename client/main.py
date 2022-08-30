@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 
 
-load_dotenv("open_oracle_client/.env")
+load_dotenv("client/.env")
 account_private_key = int(os.getenv("ACCOUNT_PRIVATE_KEY"))
 account_contract_address = os.getenv("ACCOUNT_CONTRACT_ADDRESS")
 

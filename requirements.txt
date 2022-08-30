@@ -1,4 +1,4 @@
-cairo-lang
-cairo-nile
+cairo-lang==0.9.1
 starknet.py
 empiric-network
+python-dotenv

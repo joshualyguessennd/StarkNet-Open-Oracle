@@ -17,4 +17,4 @@ artifacts
 build
 
 #.env client file
-open_oracle_client/.env
+client/.env

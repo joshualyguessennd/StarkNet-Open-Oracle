@@ -2,7 +2,7 @@ FROM python:3.7
 
 WORKDIR /
 
-COPY ./open_oracle_client . 
+COPY ./client . 
 COPY requirements.txt .
 COPY build/OpenOraclePublisher_abi.json ./build/
 
