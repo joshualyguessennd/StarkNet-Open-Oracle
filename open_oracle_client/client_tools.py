@@ -126,5 +126,5 @@ def prepare_contract_call_args(oracle_message_hex: str, oracle_signature_hex: st
                           'ticker_len_little': ticker_len_little_endian, 'ticker_name_little': ticker_little_endian,
                           'r_low': signature_r_uint256[0], 'r_high': signature_r_uint256[1],
                           's_low': signature_s_uint256[0], 's_high': signature_s_uint256[1],
-                          'v': signature_v_big, 'eth_address': eth_address_big}
+                          'v': signature_v_big, 'public_key': eth_address_big}
     return contract_call_args

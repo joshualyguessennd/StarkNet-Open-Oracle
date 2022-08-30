@@ -1,4 +1,4 @@
 cairo-lang
 cairo-nile
 starknet.py
-openzeppelin-cairo-contracts
+empiric-network
