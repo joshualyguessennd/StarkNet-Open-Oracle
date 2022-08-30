@@ -40,13 +40,13 @@ end
 func empiric_admin_address() -> (address : felt):
 end
 @storage_var
-func trusted_signers_addresses(index : felt) -> (eth_address : felt):
+func public_keys(index : felt) -> (public_key : felt):
 end
 @storage_var
-func trusted_signers_addresses_len() -> (len : felt):
+func public_keys_len() -> (len : felt):
 end
 @storage_var
-func trusted_signers_names_by_address(eth_address : felt) -> (trusted_signer_name : felt):
+func public_key_to_reporter_name(public_key : felt) -> (reporter_name : felt):
 end
 @storage_var
 func ticker_name_little_to_empiric_key(ticker_name_little : felt) -> (key : felt):
@@ -60,28 +60,28 @@ end
 # ------------------
 
 @view
-func get_all_trusted_signers_addresses{
-    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-}() -> (trusted_eth_addresses_len : felt, trusted_eth_addresses : felt*):
+func get_all_public_keys{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
+    trusted_eth_addresses_len : felt, trusted_eth_addresses : felt*
+):
     alloc_locals
-    let (local len) = trusted_signers_addresses_len.read()
+    let (local len) = public_keys_len.read()
     let (trusted_eth_addresses : felt*) = alloc()
 
-    get_all_trusted_signers_loop(trusted_eth_addresses, 0, len)
+    get_all_public_keys_loop(trusted_eth_addresses, 0, len)
 
     return (len, trusted_eth_addresses)
 end
 
-func get_all_trusted_signers_loop{
-    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-}(array : felt*, index : felt, max : felt):
+func get_all_public_keys_loop{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    array : felt*, index : felt, max : felt
+):
     if index == max:
         return ()
     end
-    let (eth_address) = trusted_signers_addresses.read(index)
+    let (eth_address) = public_keys.read(index)
     assert [array] = eth_address
 
-    get_all_trusted_signers_loop(array + 1, index + 1, max)
+    get_all_public_keys_loop(array + 1, index + 1, max)
     return ()
 end
 
@@ -105,18 +105,16 @@ end
 
 @constructor
 func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
-    trusted_signers_addresses.write(index=0, value=761466874539515783303110363281120649054760260892)
-    trusted_signers_addresses.write(
-        index=1, value=1443903124408663179676923566941061880487545664188
-    )
+    public_keys.write(index=0, value=761466874539515783303110363281120649054760260892)
+    public_keys.write(index=1, value=1443903124408663179676923566941061880487545664188)
 
-    trusted_signers_addresses_len.write(2)
+    public_keys_len.write(2)
 
-    trusted_signers_names_by_address.write(
-        eth_address=761466874539515783303110363281120649054760260892, value='okx'
+    public_key_to_reporter_name.write(
+        public_key=761466874539515783303110363281120649054760260892, value='okx'
     )
-    trusted_signers_names_by_address.write(
-        eth_address=1443903124408663179676923566941061880487545664188, value='coinbase'
+    public_key_to_reporter_name.write(
+        public_key=1443903124408663179676923566941061880487545664188, value='coinbase'
     )
 
     ticker_name_little_to_empiric_key.write(ticker_name_little=4412482, value='btc/usd')  # BTC
@@ -191,12 +189,12 @@ func publish_entry{
     syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr, bitwise_ptr : BitwiseBuiltin*
 }(entry : OpenOracleEntry):
     alloc_locals
-    let proposed_eth_address = entry.eth_address
-    let (publisher_name) = trusted_signers_names_by_address.read(eth_address=proposed_eth_address)
+    let proposed_public_key = entry.public_key
+    let (reporter_name) = public_key_to_reporter_name.read(public_key=proposed_public_key)
 
     with_attr error_message(
             "The Ethereum address that supposedly signed this message does not come from OpenOracle trusted signers"):
-        assert_not_equal(publisher_name, 0)
+        assert_not_equal(reporter_name, 0)
     end
 
     let ticker_name_little = entry.ticker_name_little
@@ -217,7 +215,7 @@ func publish_entry{
             entry.s_low,
             entry.s_high,
             entry.v,
-            entry.eth_address,
+            entry.public_key,
         )
     end
 
@@ -233,7 +231,7 @@ func publish_entry{
     assert oracle_controller_entry.key = key
     assert oracle_controller_entry.value = price
     assert oracle_controller_entry.timestamp = timestamp
-    assert oracle_controller_entry.source = publisher_name
+    assert oracle_controller_entry.source = reporter_name
     assert oracle_controller_entry.publisher = 'openoracle'
 
     let (controller_address) = empiric_oracle_controller_address.read()

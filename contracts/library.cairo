@@ -22,7 +22,7 @@ struct OpenOracleEntry:
     member s_low : felt
     member s_high : felt
     member v : felt
-    member eth_address : felt
+    member public_key : felt
 end
 
 struct Entry:
