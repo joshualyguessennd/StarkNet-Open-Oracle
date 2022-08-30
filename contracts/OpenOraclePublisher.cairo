@@ -61,15 +61,15 @@ end
 
 @view
 func get_all_public_keys{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
-    trusted_eth_addresses_len : felt, trusted_eth_addresses : felt*
+    public_keys_len : felt, public_keys : felt*
 ):
     alloc_locals
     let (local len) = public_keys_len.read()
-    let (trusted_eth_addresses : felt*) = alloc()
+    let (public_keys : felt*) = alloc()
 
-    get_all_public_keys_loop(trusted_eth_addresses, 0, len)
+    get_all_public_keys_loop(public_keys, 0, len)
 
-    return (len, trusted_eth_addresses)
+    return (len, public_keys)
 end
 
 func get_all_public_keys_loop{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
@@ -78,8 +78,8 @@ func get_all_public_keys_loop{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, 
     if index == max:
         return ()
     end
-    let (eth_address) = public_keys.read(index)
-    assert [array] = eth_address
+    let (public_key) = public_keys.read(index)
+    assert [array] = public_key
 
     get_all_public_keys_loop(array + 1, index + 1, max)
     return ()
