@@ -41,7 +41,7 @@ func test_publish_entry_fail_if_untrusted_signer{
     assert entry.s_low = 0
     assert entry.s_high = 0
     assert entry.v = 0
-    assert entry.eth_address = 0
+    assert entry.public_key = 0
 
     %{ expect_revert(error_message="does not come from OpenOracle trusted signers") %}
 
@@ -68,7 +68,7 @@ func test_publish_entry_fail_if_unspported_asset{
     assert entry.s_low = 0
     assert entry.s_high = 0
     assert entry.v = 0
-    assert entry.eth_address = 761466874539515783303110363281120649054760260892
+    assert entry.public_key = 761466874539515783303110363281120649054760260892
 
     %{ expect_revert(error_message="ticker name is not supported") %}
     OpenOraclePublisher.publish_entry(contract_address=contract_address, entry=entry)
@@ -94,7 +94,7 @@ func test_publish_entry_fail_if_wrong_message_or_signature{
     assert entry.s_low = 0
     assert entry.s_high = 0
     assert entry.v = 0
-    assert entry.eth_address = 761466874539515783303110363281120649054760260892
+    assert entry.public_key = 761466874539515783303110363281120649054760260892
 
     %{ expect_revert(error_message="Signature verification for the OpenOracleEntry provided failed") %}
     OpenOraclePublisher.publish_entry(contract_address=contract_address, entry=entry)
