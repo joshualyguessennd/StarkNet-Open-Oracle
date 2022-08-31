@@ -43,7 +43,7 @@ func test_publish_entry_fail_if_untrusted_signer{
     assert entry.v = 0
     assert entry.public_key = 0
 
-    %{ expect_revert(error_message="does not come from OpenOracle trusted signers") %}
+    %{ expect_revert(error_message="does not come from OpenOracle registered signers") %}
 
     OpenOraclePublisher.publish_entry(contract_address=contract_address, entry=entry)
 

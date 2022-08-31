@@ -1,6 +1,6 @@
 import json
 from starknet_py.contract import Contract
-
+from typing import Union
 from client_tools import fetch_coinbase, fetch_okx, prepare_contract_call_args
 from empiric.core.base_client import EmpiricBaseClient
 from empiric.core.types import HEX_STR
@@ -10,7 +10,7 @@ class OpenOracleClient(EmpiricBaseClient):
     def __init__(
         self,
         open_oracle_address: HEX_STR,
-        account_contract_address: HEX_STR,
+        account_contract_address: Union[int, HEX_STR],
         account_private_key: int,
     ):
         super().__init__(

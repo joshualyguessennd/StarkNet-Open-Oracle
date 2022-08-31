@@ -46,7 +46,7 @@ end
 func public_keys_len() -> (len : felt):
 end
 @storage_var
-func public_key_to_reporter_name(public_key : felt) -> (reporter_name : felt):
+func public_key_to_source_name(public_key : felt) -> (source_name : felt):
 end
 @storage_var
 func ticker_name_little_to_empiric_key(ticker_name_little : felt) -> (key : felt):
@@ -110,10 +110,10 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
 
     public_keys_len.write(2)
 
-    public_key_to_reporter_name.write(
+    public_key_to_source_name.write(
         public_key=761466874539515783303110363281120649054760260892, value='okx'
     )
-    public_key_to_reporter_name.write(
+    public_key_to_source_name.write(
         public_key=1443903124408663179676923566941061880487545664188, value='coinbase'
     )
 
@@ -190,11 +190,11 @@ func publish_entry{
 }(entry : OpenOracleEntry):
     alloc_locals
     let proposed_public_key = entry.public_key
-    let (reporter_name) = public_key_to_reporter_name.read(public_key=proposed_public_key)
+    let (source_name) = public_key_to_source_name.read(public_key=proposed_public_key)
 
     with_attr error_message(
-            "The Ethereum address that supposedly signed this message does not come from OpenOracle trusted signers"):
-        assert_not_equal(reporter_name, 0)
+            "The Ethereum address that supposedly signed this message does not come from OpenOracle registered signers"):
+        assert_not_equal(source_name, 0)
     end
 
     let ticker_name_little = entry.ticker_name_little
@@ -231,7 +231,7 @@ func publish_entry{
     assert oracle_controller_entry.key = key
     assert oracle_controller_entry.value = price
     assert oracle_controller_entry.timestamp = timestamp
-    assert oracle_controller_entry.source = reporter_name
+    assert oracle_controller_entry.source = source_name
     assert oracle_controller_entry.publisher = 'openoracle'
 
     let (controller_address) = empiric_oracle_controller_address.read()
