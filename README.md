@@ -80,6 +80,8 @@ Fill it using :
 - optionally, Coinbase API keys with “view” permission if you want to fetch signed prices from Coinbase.
 Note that OKX doesn't require any API keys to fetch its signed prices.
 
+#### 2.2. Choose the assets and sources you need 
+
 After that, edit the function `main()` in `client/main.py` so you can choose your assets, and if you want to fetch prices either from:
 - OKX (use `c.publish_open_oracle_entries_okx_sequential`)
 - Coinbase (use `c.publish_open_oracle_entries_coinbase_sequential`)
@@ -95,12 +97,16 @@ async def main():
     await c.publish_open_oracle_entries_all_publishers_sequential(assets=['btc', 'eth'])
 ```
 
-#### Run locally 
-Make sure you have activated the virtual env and just run `python client/main.py`.
+#### 2.3. Run either locally or with Docker  
 
-All updates will happen in one transaction.
+##### - Locally
+Make sure you have activated the virtual env and just run 
+```
+python client/main.py
+```
 
-#### Build and use a Docker container
+
+##### - With a Docker container
 
 ```bash
 docker build -t python-open-oracle-client .
