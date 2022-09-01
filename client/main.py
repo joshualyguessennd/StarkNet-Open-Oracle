@@ -16,7 +16,7 @@ account_contract_address = int(os.getenv("ACCOUNT_CONTRACT_ADDRESS"), 0)
 
 
 OPEN_ORACLE_ADDRESS = (
-    "0x00bc0106bed3f1dfa7d2badec00d11b1c0ee6ee47e0946f52d927dde6ab079a0"
+    "0x010660d8f0c7403d696e5b3fdca2ef6630f9cd8102f9d3dd4cc65a82904aa8d7"
 )
 
 

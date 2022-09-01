@@ -232,7 +232,7 @@ func publish_entry{
     assert oracle_controller_entry.value = price
     assert oracle_controller_entry.timestamp = timestamp
     assert oracle_controller_entry.source = source_name
-    assert oracle_controller_entry.publisher = 'openoracle'
+    assert oracle_controller_entry.publisher = 'openoracle2'
 
     let (controller_address) = empiric_oracle_controller_address.read()
 
