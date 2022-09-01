@@ -184,6 +184,34 @@ func test_update_admin_address_fail_if_synced{
     return ()
 end
 
+@external
+func test_correct_entry{
+    syscall_ptr : felt*, range_check_ptr, pedersen_ptr : HashBuiltin*, bitwise_ptr : BitwiseBuiltin*
+}():
+    alloc_locals
+    tempvar contract_address
+    %{ ids.contract_address = context.contract_a_address %}
+    local entry : OpenOracleEntry
+
+    assert entry.t_little = 10703902247957299200
+    assert entry.p_little = 4627187504670310400
+    assert entry.ticker_len_little = 216172782113783808
+    assert entry.ticker_name_little = 4412482
+    assert entry.r_low = 332795217045463323013001404630688413274
+    assert entry.r_high = 146142335783970907433265090013769735112
+    assert entry.s_low = 303370686640270218425857983888853860003
+    assert entry.s_high = 64365439344860771410702511821974968
+    assert entry.v = 0
+    assert entry.public_key = 761466874539515783303110363281120649054760260892
+    %{
+        stop_mock = mock_call(int('0x012fadd18ec1a23a160cc46981400160fbf4a7a5eed156c4669e39807265bcd4', 16), 'get_decimals', [18])
+        stop_mock2 = mock_call(int('0x012fadd18ec1a23a160cc46981400160fbf4a7a5eed156c4669e39807265bcd4', 16), 'publish_entry', [])
+    %}
+    OpenOraclePublisher.publish_entry(contract_address=contract_address, entry=entry)
+
+    return ()
+end
+
 # Basic test to copy and paste
 #
 # @external
@@ -193,6 +221,5 @@ end
 #     alloc_locals
 #     tempvar contract_address
 #     %{ ids.contract_address = context.contract_a_address %}
-
 # return ()
 # end
