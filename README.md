@@ -36,22 +36,46 @@ Use `protostar test --disable-hint-validation tests/` if using hints in the main
 
 ## Using the client to publish signed prices  
 
-First you need to compile the contract to get its abi. It will be stored in `build/OpenOraclePublisher_abi.json`
+First, compile the contracts. The compiled contracts and their ABI will be stored in the  `build/` directory. 
 
 ```bash
 protostar build
 ```
 
-Then fill the necessary environment variables in `client/.env(fill_and_rename_to.env` and rename the file to `.env`. You will need:
+Due to some Starknet limitations, it is not possible yet to do multiple contract calls in one transaction with the Open Oracle contracts.
+This should be fixed when the keccak builtin will be out along with other scalability improvements.  
+In order to send multiple transactions at the same time with from the python client, you will need a special type of account with a modified type of nonce.
+
+
+Here are the steps to create and deploy this type of account. 
+
+```bash 
+python contracts/account/private_key_gen.cairo
+```
+
+Retrieve the `STARKNET_PRIVATE_KEY` and the `STARKNET_PUBLIC_KEY` from the output.
+Then deploy your account with your public key as input parameter for the constructor : 
+
+```bash
+protostar deploy build/AccountTimestampNonce.json -i STARKNET_PUBLIC_KEY --network alpha-goerli
+```
+
+Retrieve the `Contract address` you will get as an output. 
+
+Don't forget to send some ETH to this address for the gas fees. 
+
+You are now able to fill the necessary environment variables in `client/.env(fill_and_rename_to.env` and rename the file to `.env`.
+Use : 
+
 - your StarkNet account private key as an integer
 - your StarkNet account contract address
 - optionally, Coinbase API keys with “view” permission if you want to fetch signed prices from Coinbase.
 Note that OKX doesn't require any API keys to fetch its signed prices.
 
 After that edit the function `main()` in `client/main.py` so you can choose your assets, and if you want to fetch prices either from:
-- OKX (use `c.publish_open_oracle_entries_okx`)
-- Coinbase (use `c.publish_open_oracle_entries_coinbase`)
-- both (use `c.publish_open_oracle_entries_all_publishers`).
+- OKX (use `c.publish_open_oracle_entries_okx_sequential`)
+- Coinbase (use `c.publish_open_oracle_entries_coinbase_sequential`)
+- both (use `c.publish_open_oracle_entries_all_publishers_sequential`).
 
 Supported assets are:
 - BTC, ETH, DAI, ZRX, BAT, KNC, LINK, COMP (for both Coinbase and OKX)
@@ -60,7 +84,7 @@ Supported assets are:
 ```python
 async def main():
     c = OpenOracleClient()
-    await c.publish_open_oracle_entries_all_publishers(assets=['btc', 'eth'])
+    await c.publish_open_oracle_entries_all_publishers_sequential(assets=['btc', 'eth'])
 ```
 
 #### Run locally 
