@@ -47,7 +47,7 @@ class OpenOracleClient(EmpiricBaseClient):
 
         return await self.send_transactions(calls=calls)
 
-    async def publish_open_oracle_entries_okx_sequential(self, assets=["btc", "eth"]):
+    async def publish_open_oracle_entries_okx_sequential(self, assets: list):
         okx_oracle_data = fetch_okx(assets=assets)
         calls = [
             self.open_oracle_contract.functions["publish_entry"].prepare(
@@ -108,7 +108,7 @@ class OpenOracleClient(EmpiricBaseClient):
         return await self.send_transactions(calls=calls)
 
     async def publish_open_oracle_entries_all_publishers_sequential(
-        self, assets=["btc", "eth", "dai"]
+        self, assets: list
     ) -> hex:
         results_okx = await self.publish_open_oracle_entries_okx_sequential(assets)
         results_cb = await self.publish_open_oracle_entries_coinbase_sequential(assets)

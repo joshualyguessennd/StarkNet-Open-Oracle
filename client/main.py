@@ -28,7 +28,7 @@ async def main():
         account_private_key=account_private_key,
     )
 
-    assets = ["btc", "eth"]
+    assets = ["btc", "eth", "dai"]
 
     for attempt in range(3):
         try:
