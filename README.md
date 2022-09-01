@@ -53,7 +53,7 @@ In order to send multiple transactions at the same time from the python client, 
 Here are the steps to create and deploy this type of account : 
 
 ```bash 
-python contracts/account/private_key_gen.cairo
+python contracts/account/private_key_gen.py
 ```
 
 Retrieve the `STARKNET_PRIVATE_KEY` and the `STARKNET_PUBLIC_KEY` from the output.
