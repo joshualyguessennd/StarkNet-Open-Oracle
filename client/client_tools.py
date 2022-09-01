@@ -1,11 +1,12 @@
-import os
 import base64
 import datetime
 import hmac
-import requests
-from hashlib import sha256
-from typing import Tuple, List
 import logging
+import os
+from hashlib import sha256
+from typing import List, Tuple
+
+import requests
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
