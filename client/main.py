@@ -1,8 +1,14 @@
 import asyncio
 from client import OpenOracleClient
 import os
+import time
 from dotenv import load_dotenv
+from starknet_py.net.client_errors import ClientError
+import logging
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 load_dotenv("client/.env")
 account_private_key = int(os.getenv("ACCOUNT_PRIVATE_KEY"), 0)
@@ -22,9 +28,19 @@ async def main():
         account_private_key=account_private_key,
     )
 
-    assets = ["btc", "eth", "snx"]
+    assets = ["btc", "eth"]
 
-    results = await c.publish_open_oracle_entries_all_publishers_sequential(assets)
+    for attempt in range(3):
+        try:
+            results = await c.publish_open_oracle_entries_all_publishers_sequential(
+                assets
+            )
+        except ClientError as e:
+            logger.warning(f"Client error {e} at {attempt} attempt, retrying")
+            time.sleep(10)
+
+        else:
+            break
 
     for k in results:
         print(f"Published latest Open Oracle {k} data with tx: {results[k]}")
