@@ -111,10 +111,10 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     public_keys_len.write(2)
 
     public_key_to_source_name.write(
-        public_key=761466874539515783303110363281120649054760260892, value='okx'
+        public_key=761466874539515783303110363281120649054760260892, value='oo-okx'
     )
     public_key_to_source_name.write(
-        public_key=1443903124408663179676923566941061880487545664188, value='coinbase'
+        public_key=1443903124408663179676923566941061880487545664188, value='oo-coinbase'
     )
 
     ticker_name_little_to_empiric_key.write(ticker_name_little=4412482, value='btc/usd')  # BTC
