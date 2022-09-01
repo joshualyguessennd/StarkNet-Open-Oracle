@@ -8,3 +8,5 @@ libs_path = "lib"
 OpenOraclePublisher = [
     "contracts/OpenOraclePublisher.cairo",
 ]
+
+AccountTimestampNonce = ["contracts/account/Account.cairo",]
