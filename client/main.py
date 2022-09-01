@@ -28,7 +28,7 @@ async def main():
         account_private_key=account_private_key,
     )
 
-    assets = ["btc", "eth", "dai"]
+    assets = ["btc", "eth"]
     results = await c.publish_open_oracle_entries_all_publishers_sequential(
         assets, n_retries=3
     )
