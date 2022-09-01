@@ -42,12 +42,15 @@ First, compile the contracts. The compiled contracts and their ABI will be store
 protostar build
 ```
 
-Due to some Starknet limitations, it is not possible yet to do multiple contract calls in one transaction with the Open Oracle contracts.
+### 1. Use a Starknet account with modified nonce validation 
+
+Due to some Starknet limitations, it is not possible yet to do multiple contract calls in one transaction with the Open Oracle contracts.  
 This should be fixed when the keccak builtin will be out along with other scalability improvements.  
-In order to send multiple transactions at the same time with from the python client, you will need a special type of account with a modified type of nonce.
+
+In order to send multiple transactions at the same time from the python client, you will need a special type of account with a modified type of nonce.
 
 
-Here are the steps to create and deploy this type of account. 
+Here are the steps to create and deploy this type of account : 
 
 ```bash 
 python contracts/account/private_key_gen.cairo
@@ -64,15 +67,20 @@ Retrieve the `Contract address` you will get as an output.
 
 Don't forget to send some ETH to this address for the gas fees. 
 
-You are now able to fill the necessary environment variables in `client/.env(fill_and_rename_to.env` and rename the file to `.env`.
-Use : 
+### 2. Use the client to publish prices 
+
+#### 2.1. Fill the envirnonment variables 
+You should now be able to fill the necessary environment variables in `client/.env(fill_and_rename_to.env`  
+Don't forget to rename the file to just  `.env` when you are done!  
+
+Fill it using : 
 
 - your StarkNet account private key as an integer
 - your StarkNet account contract address
 - optionally, Coinbase API keys with “view” permission if you want to fetch signed prices from Coinbase.
 Note that OKX doesn't require any API keys to fetch its signed prices.
 
-After that edit the function `main()` in `client/main.py` so you can choose your assets, and if you want to fetch prices either from:
+After that, edit the function `main()` in `client/main.py` so you can choose your assets, and if you want to fetch prices either from:
 - OKX (use `c.publish_open_oracle_entries_okx_sequential`)
 - Coinbase (use `c.publish_open_oracle_entries_coinbase_sequential`)
 - both (use `c.publish_open_oracle_entries_all_publishers_sequential`).
