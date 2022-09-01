@@ -24,7 +24,7 @@ async def main():
 
     assets = ["btc", "eth", "snx"]
 
-    results = await c.publish_open_oracle_entries_all_publishers(assets)
+    results = await c.publish_open_oracle_entries_all_publishers_sequential(assets)
 
     for k in results:
         print(f"Published latest Open Oracle {k} data with tx: {results[k]}")
