@@ -18,38 +18,42 @@ def to_uint(a):
 
 
 def remove_0x_if_present(eth_hex_data: str) -> str:
-    if eth_hex_data[0:2].upper() == '0X':
+    if eth_hex_data[0:2].upper() == "0X":
         return eth_hex_data[2:]
     else:
         return eth_hex_data
 
 
-def fetch_okx(assets: List[str] = ['btc', 'eth', 'dai']) -> List[Tuple[str, str, str]]:
-    okx_wallet_address = '85615b076615317c80f14cbad6501eec031cd51c'  # from api docs
+def fetch_okx(assets: List[str] = ["btc", "eth", "dai"]) -> List[Tuple[str, str, str]]:
+    okx_wallet_address = "85615b076615317c80f14cbad6501eec031cd51c"  # from api docs
 
-    r = requests.get('https://www.okx.com/api/v5/market/open-oracle')
-    r_dict = r.json()['data'][0]
-    messages = r_dict['messages']
-    signatures = r_dict['signatures']
-    tickers = [bytes.fromhex(remove_0x_if_present(m))[224:232].split(b'\x00')[
-        0].decode() for m in messages]
+    r = requests.get("https://www.okx.com/api/v5/market/open-oracle")
+    r_dict = r.json()["data"][0]
+    messages = r_dict["messages"]
+    signatures = r_dict["signatures"]
+    tickers = [
+        bytes.fromhex(remove_0x_if_present(m))[224:232].split(b"\x00")[0].decode()
+        for m in messages
+    ]
 
     result = []
     for asset in assets:
         try:
             index = tickers.index(asset.upper())
-            result.append(
-                (messages[index], signatures[index], okx_wallet_address))
+            result.append((messages[index], signatures[index], okx_wallet_address))
         except ValueError:
             logger.info(
-                f"Asset {asset.upper()} not available in Okx signed messages, skipping")
+                f"Asset {asset.upper()} not available in OKX signed messages, skipping"
+            )
             pass
 
     return result
 
 
-def fetch_coinbase(assets: List[str] = ['btc', 'eth', 'dai']) -> List[Tuple[str, str, str]]:
-    coinbase_wallet_address = '0xfCEAdAFab14d46e20144F48824d0C09B1a03F2BC'
+def fetch_coinbase(
+    assets: List[str] = ["btc", "eth", "dai"]
+) -> List[Tuple[str, str, str]]:
+    coinbase_wallet_address = "0xfCEAdAFab14d46e20144F48824d0C09B1a03F2BC"
     COINBASE_API_SECRET = os.getenv("COINBASE_API_SECRET")
     COINBASE_API_KEY = os.getenv("COINBASE_API_KEY")
     COINBASE_API_PASSPHRASE = os.environ.get("COINBASE_API_PASSPHRASE")
@@ -76,43 +80,45 @@ def fetch_coinbase(assets: List[str] = ['btc', 'eth', 'dai']) -> List[Tuple[str,
         "CB-ACCESS-PASSPHRASE": COINBASE_API_PASSPHRASE,
     }
 
-    response = requests.request(
-        METHOD, URL + REQUEST_PATH, headers=headers, timeout=10
-    )
+    response = requests.request(METHOD, URL + REQUEST_PATH, headers=headers, timeout=10)
 
     response.raise_for_status()
     response = response.json()
-    messages = response['messages']
-    signatures = response['signatures']
+    messages = response["messages"]
+    signatures = response["signatures"]
 
     result = []
-    tickers = [bytes.fromhex(remove_0x_if_present(m))[224:232].split(b'\x00')[
-        0].decode() for m in messages]
+    tickers = [
+        bytes.fromhex(remove_0x_if_present(m))[224:232].split(b"\x00")[0].decode()
+        for m in messages
+    ]
     for asset in assets:
         try:
             index = tickers.index(asset.upper())
-            result.append(
-                (messages[index], signatures[index], coinbase_wallet_address))
+            result.append((messages[index], signatures[index], coinbase_wallet_address))
         except ValueError:
             logger.info(
-                f"Asset {asset.upper()} not available in Coinbase signed messages, skipping")
+                f"Asset {asset.upper()} not available in Coinbase signed messages, skipping"
+            )
             pass
 
     return result
 
 
-def prepare_contract_call_args(oracle_message_hex: str, oracle_signature_hex: str, eth_wallet_address: str) -> dict:
+def prepare_contract_call_args(
+    oracle_message_hex: str, oracle_signature_hex: str, eth_wallet_address: str
+) -> dict:
     message_bytes = bytes.fromhex(remove_0x_if_present(oracle_message_hex))
     signature_bytes = bytes.fromhex(remove_0x_if_present(oracle_signature_hex))
 
-    timestamp_little_endian = int.from_bytes(message_bytes[56:64], 'little')
-    price_little_endian = int.from_bytes(message_bytes[120:128], 'little')
-    ticker_len_little_endian = int.from_bytes(message_bytes[216:224], 'little')
-    ticker_little_endian = int.from_bytes(message_bytes[224:232], 'little')
+    timestamp_little_endian = int.from_bytes(message_bytes[56:64], "little")
+    price_little_endian = int.from_bytes(message_bytes[120:128], "little")
+    ticker_len_little_endian = int.from_bytes(message_bytes[216:224], "little")
+    ticker_little_endian = int.from_bytes(message_bytes[224:232], "little")
 
-    signature_r_big = int.from_bytes(signature_bytes[0:32], 'big')
-    signature_s_big = int.from_bytes(signature_bytes[32:64], 'big')
-    signature_v_big = int.from_bytes(signature_bytes[64:96], 'big')
+    signature_r_big = int.from_bytes(signature_bytes[0:32], "big")
+    signature_s_big = int.from_bytes(signature_bytes[32:64], "big")
+    signature_v_big = int.from_bytes(signature_bytes[64:96], "big")
 
     signature_r_uint256 = to_uint(signature_r_big)
     signature_s_uint256 = to_uint(signature_s_big)
@@ -122,9 +128,16 @@ def prepare_contract_call_args(oracle_message_hex: str, oracle_signature_hex: st
     if signature_v_big == 27 or signature_v_big == 28:
         signature_v_big -= 27  # See https://github.com/starkware-libs/cairo-lang/blob/13cef109cd811474de114925ee61fd5ac84a25eb/src/starkware/cairo/common/cairo_secp/signature.cairo#L173-L174
 
-    contract_call_args = {'t_little': timestamp_little_endian, 'p_little': price_little_endian,
-                          'ticker_len_little': ticker_len_little_endian, 'ticker_name_little': ticker_little_endian,
-                          'r_low': signature_r_uint256[0], 'r_high': signature_r_uint256[1],
-                          's_low': signature_s_uint256[0], 's_high': signature_s_uint256[1],
-                          'v': signature_v_big, 'public_key': eth_address_big}
+    contract_call_args = {
+        "t_little": timestamp_little_endian,
+        "p_little": price_little_endian,
+        "ticker_len_little": ticker_len_little_endian,
+        "ticker_name_little": ticker_little_endian,
+        "r_low": signature_r_uint256[0],
+        "r_high": signature_r_uint256[1],
+        "s_low": signature_s_uint256[0],
+        "s_high": signature_s_uint256[1],
+        "v": signature_v_big,
+        "public_key": eth_address_big,
+    }
     return contract_call_args
