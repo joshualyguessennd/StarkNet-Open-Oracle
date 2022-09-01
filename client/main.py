@@ -15,14 +15,19 @@ OPEN_ORACLE_ADDRESS = (
 
 
 async def main():
+    c: OpenOracleClient
     c = OpenOracleClient(
         open_oracle_address=OPEN_ORACLE_ADDRESS,
         account_contract_address=account_contract_address,
         account_private_key=account_private_key,
     )
 
-    result = await c.publish_open_oracle_entries_all_publishers(assets=["btc", "eth"])
-    print(f"Published Open Oracle data with tx: {result}")
+    assets = ["btc", "eth", "snx"]
+
+    results = await c.publish_open_oracle_entries_all_publishers(assets)
+
+    for k in results:
+        print(f"Published latest Open Oracle {k} data with tx: {results[k]}")
 
 
 if __name__ == "__main__":
